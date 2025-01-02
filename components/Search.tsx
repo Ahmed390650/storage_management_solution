@@ -1,47 +1,50 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import React, { useEffect } from "react";
-import { Input } from "./ui/input";
-import { useDebounce } from "use-debounce";
-import { Models } from "node-appwrite";
-import { getFiles } from "@/lib/actions/file.actions";
+import { Input } from "@/components/ui/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Thumbnail from "./Thumbnail";
-import FormattedDateTime from "./FormattedDateTime";
-
+import { getFiles } from "@/lib/actions/file.actions";
+import { Models } from "node-appwrite";
+import Thumbnail from "@/components/Thumbnail";
+import FormattedDateTime from "@/components/FormattedDateTime";
+import { useDebounce } from "use-debounce";
 const Search = () => {
-  const [query, setQuery] = React.useState("");
-  const [result, setResult] = React.useState<Models.Document[]>([]);
-  const [open, setOpen] = React.useState(false);
-  const [debouncedQuery] = useDebounce(query, 300);
+  const [query, setQuery] = useState("");
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("query") || "";
-  const path = usePathname();
+  const [results, setResults] = useState<Models.Document[]>([]);
+  const [open, setOpen] = useState(false);
   const router = useRouter();
+  const path = usePathname();
+  const [debouncedQuery] = useDebounce(query, 300);
+
   useEffect(() => {
     const fetchFiles = async () => {
       if (debouncedQuery.length === 0) {
+        setResults([]);
         setOpen(false);
-        setResult([]);
         return router.push(path.replace(searchParams.toString(), ""));
       }
-      const filesList = await getFiles({
-        types: [],
-        searchText: debouncedQuery,
-      });
-      setResult(filesList?.documents ?? []);
+
+      const files = await getFiles({ types: [], searchText: debouncedQuery });
+      setResults(files?.documents || []);
       setOpen(true);
     };
+
     fetchFiles();
-  }, [debouncedQuery, path, router, searchParams]);
+  }, [debouncedQuery, path, searchParams, router]);
+
   useEffect(() => {
-    if (!searchQuery) {
+    if (!searchQuery || !query) {
       setQuery("");
+      setOpen(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, query]);
+
   const handleClickItem = (file: Models.Document) => {
     setOpen(false);
-    setQuery("");
+    setResults([]);
+
     router.push(
       `/${
         file.type === "video" || file.type === "audio"
@@ -50,25 +53,27 @@ const Search = () => {
       }?query=${query}`
     );
   };
+
   return (
     <div className="search">
       <div className="search-input-wrapper">
         <Image
           src="/assets/icons/search.svg"
+          alt="Search"
           width={24}
           height={24}
-          alt="search"
         />
         <Input
           value={query}
-          placeholder="Search"
+          placeholder="Search..."
           className="search-input"
           onChange={(e) => setQuery(e.target.value)}
         />
+
         {open && (
           <ul className="search-result">
-            {result.length > 0 ? (
-              result.map((file) => (
+            {results.length > 0 ? (
+              results.map((file) => (
                 <li
                   className="flex items-center justify-between"
                   key={file.$id}
@@ -86,7 +91,7 @@ const Search = () => {
                   </div>
 
                   <FormattedDateTime
-                    date={new Date(file.$createdAt)}
+                    date={file.createdAt as Date}
                     className="caption line-clamp-1 text-light-200"
                   />
                 </li>

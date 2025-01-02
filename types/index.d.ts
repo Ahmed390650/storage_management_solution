@@ -72,3 +72,10 @@ declare interface ShareInputProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (email: string) => void;
 }
+declare interface totalSpace {
+  title: string;
+  size: string;
+  latestDate: string;
+  icon: string;
+  url: string;
+}

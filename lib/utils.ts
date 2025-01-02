@@ -5,8 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const parseStringify = (value: unknown) =>
-  JSON.parse(JSON.stringify(value));
+export const parseStringify = <TData>(value: TData): TData => {
+  return JSON.parse(JSON.stringify(value));
+};
 export const getFileType = (
   file: string
 ): {
@@ -118,4 +119,76 @@ export const convertFileToURL = (file: File) => URL.createObjectURL(file);
 // Construct appwrite file URL - https://appwrite.io/docs/apis/rest#images
 export const constructFileUrl = (bucketFileId: string) => {
   return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT}`;
+};
+export const calculatePercentage = (sizeInBytes: number) => {
+  const totalSizeInBytes = 2 * 1024 * 1024 * 1024; // 2GB in bytes
+  const percentage = (sizeInBytes / totalSizeInBytes) * 100;
+  return Number(percentage.toFixed(2));
+};
+export const convertFileSize = (sizeInBytes: number, digits?: number) => {
+  if (sizeInBytes < 1024) {
+    return `${sizeInBytes} Bytes`; //less than 1KB
+  } else if (sizeInBytes < 1024 * 1024) {
+    const sizeInKB = sizeInBytes / 1024; //less than 1MB
+    return sizeInKB.toFixed(digits || 1) + " KB";
+  } else if (sizeInBytes < 1024 * 1024 * 1024) {
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    return sizeInMB.toFixed(digits || 1) + " MB"; //less than 1GB
+  } else {
+    const sizeInGB = sizeInBytes / (1024 * 1024 * 1024);
+    return sizeInGB.toFixed(digits || 1) + " GB"; //more than 1GB
+  }
+};
+
+export const constructDownloadUrl = (bucketFileId: string) => {
+  return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/download?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT}`;
+};
+export const getFileTypesParams = (type: string): FileType[] => {
+  switch (type) {
+    case "documents":
+      return ["document"];
+    case "images":
+      return ["image"];
+    case "media":
+      return ["video", "audio"];
+    case "others":
+      return ["other"];
+    default:
+      return ["document"];
+  }
+};
+export const getUsageSummary = (totalSpace: any) => {
+  return [
+    {
+      title: "Documents",
+      size: totalSpace.document.size,
+      latestDate: totalSpace.document.latestDate,
+      icon: "/assets/icons/file-document-light.svg",
+      url: "/documents",
+    },
+    {
+      title: "Images",
+      size: totalSpace.image.size,
+      latestDate: totalSpace.image.latestDate,
+      icon: "/assets/icons/file-image-light.svg",
+      url: "/images",
+    },
+    {
+      title: "Media",
+      size: totalSpace.video.size + totalSpace.audio.size,
+      latestDate:
+        totalSpace.video.latestDate > totalSpace.audio.latestDate
+          ? totalSpace.video.latestDate
+          : totalSpace.audio.latestDate,
+      icon: "/assets/icons/file-video-light.svg",
+      url: "/media",
+    },
+    {
+      title: "Others",
+      size: totalSpace.other.size,
+      latestDate: totalSpace.other.latestDate,
+      icon: "/assets/icons/file-other-light.svg",
+      url: "/others",
+    },
+  ];
 };

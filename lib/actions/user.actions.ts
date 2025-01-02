@@ -1,5 +1,5 @@
 "use server";
-import { ID, Query } from "node-appwrite";
+import { ID, Models, Query } from "node-appwrite";
 import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { parseStringify } from "../utils";
@@ -88,7 +88,7 @@ export const getCurrrentUser = async () => {
     );
     if (user.total <= 0) return null;
 
-    return parseStringify(user.documents[0]);
+    return parseStringify<Models.Document>(user.documents[0]);
   } catch (error) {
     handleError(error, "Error getting current user");
   }

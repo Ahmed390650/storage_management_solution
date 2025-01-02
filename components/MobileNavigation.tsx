@@ -20,10 +20,14 @@ const MobileNavigation = ({
   avatar,
   fullName,
   email,
+  ownerId,
+  accountId,
 }: {
   avatar: string;
   fullName: string;
   email: string;
+  ownerId: string;
+  accountId: string;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const pathname = usePathname();
@@ -90,7 +94,7 @@ const MobileNavigation = ({
           </nav>
           <Separator className="my-5 bg-light-200/100" />
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader />
+            <FileUploader accountId={accountId} ownerId={ownerId} />
             <Button
               className="mobile-sign-out-button"
               type="submit"

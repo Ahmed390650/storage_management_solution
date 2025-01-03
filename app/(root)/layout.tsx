@@ -11,12 +11,19 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
   const currentUser = await getCurrrentUser();
 
   if (!currentUser) return redirect("/sign-in");
+  const { accountId, $id, avatar, email, fullName } = currentUser;
   return (
     <main className="flex h-screen">
-      <SideBar {...currentUser} />
+      <SideBar avatar={avatar} fullName={fullName} email={email} />
       <section className="flex h-full flex-1 flex-col">
-        <MobileNavigation {...currentUser} />
-        <Header accountId={currentUser.accountId} userId={currentUser.$id} />
+        <MobileNavigation
+          accountId={accountId}
+          avatar={avatar}
+          fullName={fullName}
+          email={email}
+          ownerId={$id}
+        />
+        <Header accountId={accountId} userId={$id} />
         <div className="main-content">{children}</div>
       </section>
       <Toaster />

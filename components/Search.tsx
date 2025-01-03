@@ -35,16 +35,14 @@ const Search = () => {
   }, [debouncedQuery, path, searchParams, router]);
 
   useEffect(() => {
-    if (!searchQuery || !query) {
-      setQuery("");
+    if (!searchQuery) {
       setOpen(false);
     }
-  }, [searchQuery, query]);
+  }, [searchQuery]);
 
   const handleClickItem = (file: Models.Document) => {
     setOpen(false);
     setResults([]);
-
     router.push(
       `/${
         file.type === "video" || file.type === "audio"

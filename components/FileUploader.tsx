@@ -104,6 +104,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                     <Image
                       src="/assets/icons/file-loader.gif"
                       width={80}
+                      unoptimized
                       height={26}
                       alt="Loader"
                     />
